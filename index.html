@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HACKER SAVING SYSTEM V2 - PERSISTENT</title>
+    <style>
+        :root {
+            --hacker-green: #00ff41;
+            --dark-bg: #0d0d0d;
+            --matrix-glow: 0 0 10px #00ff41;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--hacker-green);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--hacker-green);
+            padding: 20px;
+            box-shadow: var(--matrix-glow);
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--hacker-green);
+            padding-bottom: 10px;
+        }
+
+        .stats { margin: 20px 0; font-size: 1.1rem; }
+
+        .progress-container {
+            width: 100%;
+            height: 30px;
+            background: #001a00;
+            border: 1px solid var(--hacker-green);
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--hacker-green);
+            box-shadow: var(--matrix-glow);
+            transition: width 0.5s ease-in-out;
+        }
+
+        #percent-text {
+            position: absolute; width: 100%; text-align: center;
+            top: 5px; color: white; font-weight: bold;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        .input-group { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+
+        input {
+            background: transparent; border: 1px solid var(--hacker-green);
+            color: var(--hacker-green); padding: 10px;
+            font-family: 'Courier New', monospace; outline: none;
+        }
+
+        button {
+            background: var(--hacker-green); color: black;
+            border: none; padding: 12px; font-weight: bold;
+            cursor: pointer; text-transform: uppercase;
+        }
+
+        #log {
+            margin-top: 20px; height: 120px; overflow-y: auto;
+            border-top: 1px solid var(--hacker-green); font-size: 0.8rem;
+            padding-top: 10px;
+        }
+
+        .btn-reset {
+            background: #ff0000; color: white; margin-top: 10px;
+            font-size: 0.7rem; padding: 5px; opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>> DATABASE_SAVING_SECURE <span class="cursor"></span></h1>
+    
+    <div class="stats">
+        <div>GOAL: Rp 1.800.000</div>
+        <div>CURRENT: <span id="current-amount">Rp 0</span></div>
+        <div>REMAINING: <span id="remaining-amount">Rp 1.800.000</span></div>
+    </div>
+
+    <div class="progress-container">
+        <div id="progress-bar"></div>
+        <div id="percent-text">0%</div>
+    </div>
+
+    <div class="input-group">
+        <input type="number" id="nominal" placeholder="Input Amount..." autofocus>
+        <button onclick="addFunds()">CONFIRM_DEPOSIT</button>
+    </div>
+
+    <div id="log"></div>
+    
+    <button class="btn-reset" onclick="resetData()">!!! RESET_DATABASE !!!</button>
+</div>
+
+<script>
+    const target = 1800000;
+    // Load data saat awal dibuka
+    let currentBalance = parseInt(localStorage.getItem('tabungan')) || 0;
+
+    function formatRupiah(number) {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+    }
+
+    function updateUI() {
+        const percent = (currentBalance / target) * 100;
+        document.getElementById('current-amount').innerText = formatRupiah(currentBalance);
+        document.getElementById('remaining-amount').innerText = formatRupiah(target - currentBalance);
+        document.getElementById('progress-bar').style.width = percent + '%';
+        document.getElementById('percent-text').innerText = Math.floor(percent) + '%';
+    }
+
+    function addFunds() {
+        const input = document.getElementById('nominal');
+        const amount = parseInt(input.value);
+
+        if (isNaN(amount) || amount <= 0) return;
+
+        currentBalance += amount;
+        
+        // SIMPAN KE LOCALSTORAGE
+        localStorage.setItem('tabungan', currentBalance);
+
+        const log = document.getElementById('log');
+        const entry = document.createElement('div');
+        entry.innerText = `> SUCCESS: +${formatRupiah(amount)} | ${new Date().toLocaleTimeString()}`;
+        log.prepend(entry);
+
+        updateUI();
+        input.value = '';
+    }
+
+    function resetData() {
+        if(confirm("Hapus semua data tabungan?")) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+
+    // Jalankan UI pertama kali
+    updateUI();
+    document.getElementById('log').innerHTML = '<div>> System loaded from local_memory...</div>';
+</script>
+
+</body>
+</html>
